@@ -1,0 +1,20 @@
+{% extends 'base.jinja2' %}
+
+{% block body %}
+<table class="table">
+<thead>
+  <tr>
+	<th>title</th>
+	<th>download</th>
+  </tr>
+</thead>
+<tbody>
+{% for elem in link_list %}
+  <tr>
+	<td>{{ elem.title }}</td>
+	<td><a href="/rip/maru/{{ elem.uid }}" class="btn btn-default">download</a></td>
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -52,3 +52,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+################
+secret.txt
+
+bower_components
+node_modules
+amane/output/
