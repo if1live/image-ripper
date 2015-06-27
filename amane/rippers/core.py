@@ -95,6 +95,10 @@ class Image(Base):
     def data(self):
         return self.url_content.data
 
+    def get_meta(self, key):
+        meta = self.url_content.meta
+        return meta[key]
+
     @property
     def name(self):
         # check extension
@@ -104,7 +108,12 @@ class Image(Base):
         elif extension in ('.png', '.gif'):
             target_ext = extension
         else:
-            raise AssertionError('not supported image extension')
+            # if extension is not exist, use content-type
+            content_type = self.get_meta('Content-Type')
+            if content_type in ('image/jpeg',):
+                target_ext = '.jpg'
+            else:
+                raise AssertionError('not supported image extension : %s' % (self.url,))
 
         return '%03d%s' % (self.num, target_ext)
 
@@ -160,8 +169,14 @@ class ImageURLFilterPolicy_AllowCommonHostName(ImageURLFilterPolicy):
     """
     remove not common host.
     allow only one most common hostname.
+
+    Sometimes, allow many hostname. Find similary hostname then allow all.
+    cfile25.uf.tistory.com
+    cfile30.uf.tistory.com
+    cfile23.uf.tistory.com
+    ....
     """
-    def find_common_hostname(self, url_list):
+    def build_hostname_table(self, url_list):
         hostname_count_table = {}
         for url in url_list:
             result = urlparse.urlparse(url)
@@ -169,14 +184,23 @@ class ImageURLFilterPolicy_AllowCommonHostName(ImageURLFilterPolicy):
             if hostname not in hostname_count_table:
                 hostname_count_table[hostname] = 0
             hostname_count_table[hostname] += 1
+        return hostname_count_table
 
-        item = max(hostname_count_table.items(), key=lambda x: x[1])
-        assert(item[1] > 1)
-        return item[0]
+    def find_common_hostname_list_from_count_table(self, table):
+        candidate_list = table.keys()
+        retval = []
+        for hostname in candidate_list:
+            if '.uf.tistory.com' in hostname:
+                retval.append(hostname)
+        return retval
+
+    def find_common_hostname_list(self, url_list):
+        hostname_count_table = self.build_hostname_table(url_list)
+        return self.find_common_hostname_list_from_count_table(hostname_count_table)
 
     def __call__(self, url_list):
-        hostname = self.find_common_hostname(url_list)
-        is_allow_host = lambda x: urlparse.urlparse(x).netloc == hostname
+        hostname_list = self.find_common_hostname_list(url_list)
+        is_allow_host = lambda x: urlparse.urlparse(x).netloc in hostname_list
         url_list = [x for x in url_list if is_allow_host(x)]
         return url_list
 

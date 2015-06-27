@@ -79,3 +79,46 @@ class ImageURLFitlerPolicy_AllowComonHostName(unittest.TestCase):
         ]
         self.assertEqual(3, len(actual))
         self.assertEqual(expected, actual)
+
+
+    def test_similary(self):
+        input_data = {
+            'cfile25.uf.tistory.com': 3,
+            'cfile30.uf.tistory.com': 2,
+            'cfile23.uf.tistory.com': 1,
+            'cfile24.uf.tistory.com': 2,
+            'cfile8.uf.tistory.com': 2,
+            'cfile5.uf.tistory.com': 3,
+            'cfile4.uf.tistory.com': 1,
+            'cfile22.uf.tistory.com': 2,
+            'cfile27.uf.tistory.com': 2,
+            'cfile28.uf.tistory.com': 1,
+            'cfile21.uf.tistory.com': 1,
+            'cfile2.uf.tistory.com': 3,
+            'cfile26.uf.tistory.com': 1,
+            'cfile10.uf.tistory.com': 1,
+            'cfile7.uf.tistory.com': 3,
+            'i1.daumcdn.net': 3,
+        }
+
+        expected = [
+            'cfile25.uf.tistory.com',
+            'cfile30.uf.tistory.com',
+            'cfile23.uf.tistory.com',
+            'cfile24.uf.tistory.com',
+            'cfile8.uf.tistory.com',
+            'cfile5.uf.tistory.com',
+            'cfile4.uf.tistory.com',
+            'cfile22.uf.tistory.com',
+            'cfile27.uf.tistory.com',
+            'cfile28.uf.tistory.com',
+            'cfile21.uf.tistory.com',
+            'cfile2.uf.tistory.com',
+            'cfile26.uf.tistory.com',
+            'cfile10.uf.tistory.com',
+            'cfile7.uf.tistory.com',
+        ]
+
+        policy = core.ImageURLFilterPolicy_AllowCommonHostName()
+        actual = policy.find_common_hostname_list_from_count_table(url_list)
+        self.assertEqual(set(actual), set(expected))

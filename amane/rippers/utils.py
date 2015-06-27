@@ -29,7 +29,8 @@ class URLContent(object):
         if not self._request_cache:
             self.run()
         #TODO return http request meta data
-        raise NotImplementedError()
+        r = self._request_cache
+        return r.headers
 
     def run(self):
         user_agent = ' '.join([
